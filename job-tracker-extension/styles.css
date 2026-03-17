@@ -1,0 +1,302 @@
+/* styles.css — Job Tracker Importer popup */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  width: 320px;
+  min-height: 160px;
+}
+
+#app {
+  width: 320px;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+
+.container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.container.centered {
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px;
+  gap: 12px;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #111827;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logo-icon {
+  font-size: 18px;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 15px;
+  color: #4f46e5;
+}
+
+/* ── URL text ────────────────────────────────────────────────────────────── */
+
+.url-text {
+  font-size: 11px;
+  color: #9ca3af;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+/* ── Notice ──────────────────────────────────────────────────────────────── */
+
+.notice {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.notice p {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  width: 100%;
+}
+
+.btn:hover { opacity: 0.88; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: #4f46e5;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.link-btn {
+  display: flex;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #9ca3af;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.icon-btn:hover { color: #4f46e5; background: #ede9fe; }
+
+/* ── Actions row ─────────────────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+
+.card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.company-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #111827;
+}
+
+.role {
+  font-size: 13px;
+  color: #374151;
+}
+
+.meta {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ── Tech stack chips ────────────────────────────────────────────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.chip {
+  background: #ede9fe;
+  color: #4f46e5;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.chip-more {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+/* ── Loading spinner ─────────────────────────────────────────────────────── */
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* ── Success state ───────────────────────────────────────────────────────── */
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #d1fae5;
+  color: #059669;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.success-sub {
+  font-size: 12px;
+  color: #6b7280;
+  max-width: 240px;
+}
+
+/* ── Error state ─────────────────────────────────────────────────────────── */
+
+.error-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.error-msg {
+  font-size: 12px;
+  color: #6b7280;
+  max-width: 240px;
+  line-height: 1.5;
+}
+
+/* ── Settings ────────────────────────────────────────────────────────────── */
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  display: block;
+}
+
+.text-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.text-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px #ede9fe;
+}
+
+.field-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  line-height: 1.5;
+}

@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "Job Tracker Importer",
+  "version": "1.0.0",
+  "description": "Import job postings from LinkedIn, Indeed, Glassdoor, Greenhouse, or Lever into your Job Tracker app.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.linkedin.com/jobs/view/*",
+    "https://www.indeed.com/viewjob*",
+    "https://www.glassdoor.com/Job/*",
+    "https://*.greenhouse.io/*",
+    "https://*.lever.co/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/jobs/*",
+        "https://www.indeed.com/viewjob*",
+        "https://www.glassdoor.com/Job/*",
+        "https://*.greenhouse.io/*",
+        "https://*.lever.co/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "options_page": "popup.html"
+}
