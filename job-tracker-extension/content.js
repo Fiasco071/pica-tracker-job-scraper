@@ -6,13 +6,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // For LinkedIn two-panel layout (search/collections), combine top card + description
   function extractLinkedIn() {
-    const topCard = document.querySelector(".jobs-unified-top-card");
+    // Salary/insights are in separate chip elements — collect them explicitly
+    const insightSelectors = [
+      ".jobs-unified-top-card__job-insight",
+      ".job-details-jobs-unified-top-card__job-insight",
+      "[class*='job-insight']",
+      ".jobs-unified-top-card__metadata-item",
+    ];
+    const insights = [];
+    for (const sel of insightSelectors) {
+      document.querySelectorAll(sel).forEach(el => {
+        const t = el.innerText.trim();
+        if (t) insights.push(t);
+      });
+      if (insights.length) break;
+    }
+
+    const topCard = document.querySelector(
+      ".jobs-unified-top-card, .job-details-jobs-unified-top-card__container"
+    );
     const desc = document.querySelector(
       ".jobs-description__content, .jobs-description-content__text, [class*='jobs-description__container']"
     );
-    if (topCard || desc) {
-      return [topCard?.innerText, desc?.innerText].filter(Boolean).join("\n\n").slice(0, 12000);
-    }
+
+    const parts = [];
+    if (topCard) parts.push(topCard.innerText.trim());
+    if (insights.length) parts.push("Insights: " + insights.join(" | "));
+    if (desc) parts.push(desc.innerText.trim());
+
+    if (parts.length) return parts.join("\n\n").slice(0, 12000);
+
     // Fallback: grab the entire right-side detail panel
     const detail = document.querySelector(".scaffold-layout__detail, .jobs-search__job-details--wrapper, .job-view-layout");
     if (detail && detail.innerText.trim().length > 100) {

@@ -253,12 +253,25 @@ async function handleImport() {
         func: () => {
           let text = null;
           if (location.hostname.includes("linkedin.com")) {
-            const topCard = document.querySelector(".jobs-unified-top-card");
-            const desc = document.querySelector(
-              ".jobs-description__content, .jobs-description-content__text, [class*='jobs-description__container']"
-            );
-            if (topCard || desc) {
-              text = [topCard?.innerText, desc?.innerText].filter(Boolean).join("\n\n").slice(0, 12000);
+            const insightSelectors = [
+              ".jobs-unified-top-card__job-insight",
+              ".job-details-jobs-unified-top-card__job-insight",
+              "[class*='job-insight']",
+              ".jobs-unified-top-card__metadata-item",
+            ];
+            const insights = [];
+            for (const sel of insightSelectors) {
+              document.querySelectorAll(sel).forEach(el => { const t = el.innerText.trim(); if (t) insights.push(t); });
+              if (insights.length) break;
+            }
+            const topCard = document.querySelector(".jobs-unified-top-card, .job-details-jobs-unified-top-card__container");
+            const desc = document.querySelector(".jobs-description__content, .jobs-description-content__text, [class*='jobs-description__container']");
+            const parts = [];
+            if (topCard) parts.push(topCard.innerText.trim());
+            if (insights.length) parts.push("Insights: " + insights.join(" | "));
+            if (desc) parts.push(desc.innerText.trim());
+            if (parts.length) {
+              text = parts.join("\n\n").slice(0, 12000);
             } else {
               const detail = document.querySelector(".scaffold-layout__detail, .jobs-search__job-details--wrapper, .job-view-layout");
               if (detail && detail.innerText.trim().length > 100) text = detail.innerText.trim().slice(0, 12000);
