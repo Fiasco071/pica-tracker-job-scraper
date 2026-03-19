@@ -21,9 +21,11 @@ async function ingestJob({ text, url, appUrl }) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "INGEST_JOB") {
-    ingestJob(message.payload)
-      .then((data) => sendResponse({ ok: true, data }))
-      .catch((err) => sendResponse({ ok: false, error: err.code || "IMPORT_FAILED", detail: err.detail }));
+    const { text, url, appUrl } = message.payload;
+    console.log("[Pica] INGEST_JOB received | appUrl:", appUrl, "| textLength:", text?.length, "| preview:", text?.slice(0, 300));
+    ingestJob({ text, url, appUrl })
+      .then((data) => { console.log("[Pica] ingest success:", JSON.stringify(data?.parsed)); sendResponse({ ok: true, data }); })
+      .catch((err) => { console.error("[Pica] ingest error:", err.code, err.message); sendResponse({ ok: false, error: err.code || "IMPORT_FAILED", detail: err.detail }); });
     return true; // keep channel open for async response
   }
 
