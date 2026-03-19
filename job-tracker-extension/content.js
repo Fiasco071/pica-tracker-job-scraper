@@ -76,7 +76,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   if (location.hostname.includes("linkedin.com")) {
     text = extractLinkedIn();
-    console.log("[Pica] LinkedIn extraction result length:", text?.length ?? 0, text?.slice(0, 200));
   }
 
   if (!text) {
@@ -100,7 +99,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     text = document.body.innerText.slice(0, 12000);
   }
 
-  console.log("[Pica] Sending text length:", text.length, "| URL:", location.href);
   sendResponse({ text, url: location.href });
   return true;
 });
