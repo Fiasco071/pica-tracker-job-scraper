@@ -29,19 +29,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       ".jobs-description__content, .jobs-description-content__text, [class*='jobs-description__container']"
     );
 
+    // Fallback: grab the entire right-side detail panel
+    const detail = document.querySelector(
+      ".scaffold-layout__detail, .jobs-search__job-details--wrapper, .job-view-layout"
+    );
+
+    // Need at minimum the description OR the detail panel — insights alone aren't enough
+    const mainContent = desc || (detail && detail.innerText.trim().length > 100 ? detail : null);
+    if (!mainContent && !topCard) return null;
+
     const parts = [];
     if (topCard) parts.push(topCard.innerText.trim());
-    if (insights.length) parts.push("Insights: " + insights.join(" | "));
+    if (insights.length) parts.push("Compensation/Insights: " + insights.join(" | "));
     if (desc) parts.push(desc.innerText.trim());
+    else if (detail) parts.push(detail.innerText.trim());
 
-    if (parts.length) return parts.join("\n\n").slice(0, 12000);
-
-    // Fallback: grab the entire right-side detail panel
-    const detail = document.querySelector(".scaffold-layout__detail, .jobs-search__job-details--wrapper, .job-view-layout");
-    if (detail && detail.innerText.trim().length > 100) {
-      return detail.innerText.trim().slice(0, 12000);
-    }
-    return null;
+    return parts.join("\n\n").slice(0, 12000);
   }
 
   let text = null;

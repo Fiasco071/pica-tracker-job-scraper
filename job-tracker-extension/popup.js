@@ -266,15 +266,15 @@ async function handleImport() {
             }
             const topCard = document.querySelector(".jobs-unified-top-card, .job-details-jobs-unified-top-card__container");
             const desc = document.querySelector(".jobs-description__content, .jobs-description-content__text, [class*='jobs-description__container']");
-            const parts = [];
-            if (topCard) parts.push(topCard.innerText.trim());
-            if (insights.length) parts.push("Insights: " + insights.join(" | "));
-            if (desc) parts.push(desc.innerText.trim());
-            if (parts.length) {
+            const detail = document.querySelector(".scaffold-layout__detail, .jobs-search__job-details--wrapper, .job-view-layout");
+            const mainContent = desc || (detail && detail.innerText.trim().length > 100 ? detail : null);
+            if (mainContent || topCard) {
+              const parts = [];
+              if (topCard) parts.push(topCard.innerText.trim());
+              if (insights.length) parts.push("Compensation/Insights: " + insights.join(" | "));
+              if (desc) parts.push(desc.innerText.trim());
+              else if (detail) parts.push(detail.innerText.trim());
               text = parts.join("\n\n").slice(0, 12000);
-            } else {
-              const detail = document.querySelector(".scaffold-layout__detail, .jobs-search__job-details--wrapper, .job-view-layout");
-              if (detail && detail.innerText.trim().length > 100) text = detail.innerText.trim().slice(0, 12000);
             }
           }
           if (!text) {
