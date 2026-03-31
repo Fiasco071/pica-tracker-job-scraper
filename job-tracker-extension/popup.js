@@ -253,32 +253,36 @@ async function handleImport() {
         func: () => {
           let text = null;
           if (location.hostname.includes("linkedin.com")) {
-            const insightSelectors = [
-              ".jobs-unified-top-card__job-insight",
-              ".job-details-jobs-unified-top-card__job-insight",
-              "[class*='job-insight']",
-              ".jobs-unified-top-card__metadata-item",
-            ];
-            const insights = [];
-            for (const sel of insightSelectors) {
-              document.querySelectorAll(sel).forEach(el => { const t = el.innerText.trim(); if (t) insights.push(t); });
-              if (insights.length) break;
+            // Strategy 1: find job element by currentJobId data attribute
+            const jobIdMatch = location.search.match(/currentJobId=(\d+)/);
+            if (jobIdMatch) {
+              const jobId = jobIdMatch[1];
+              const byData = document.querySelector(`[data-job-id="${jobId}"], [data-occludable-job-id="${jobId}"], [data-entity-urn*="${jobId}"]`);
+              if (byData) {
+                let el = byData;
+                while (el && el.innerText.trim().length < 500 && el.parentElement) el = el.parentElement;
+                if (el && el.innerText.trim().length > 200) text = el.innerText.trim().slice(0, 12000);
+              }
             }
-            const topCard = document.querySelector(".jobs-unified-top-card, .job-details-jobs-unified-top-card__container");
-            const desc = document.querySelector(".jobs-description__content, .jobs-description-content__text, [class*='jobs-description__container']");
-            const detail = document.querySelector(".scaffold-layout__detail, .jobs-search__job-details--wrapper, .job-view-layout");
-            const mainContent = desc || (detail && detail.innerText.trim().length > 100 ? detail : null);
-            if (mainContent || topCard) {
-              const parts = [];
-              if (topCard) parts.push(topCard.innerText.trim());
-              if (insights.length) parts.push("Compensation/Insights: " + insights.join(" | "));
-              if (desc) parts.push(desc.innerText.trim());
-              else if (detail) parts.push(detail.innerText.trim());
-              text = parts.join("\n\n").slice(0, 12000);
+            // Strategy 2: find "About the job" heading
+            if (!text) {
+              const aboutHeading = Array.from(document.querySelectorAll("h2,h3,h4")).find(h => /about the job/i.test(h.innerText.trim()));
+              if (aboutHeading) {
+                let container = aboutHeading.closest("article,section,[class*='job-view'],[class*='jobs-details'],[class*='scaffold-layout__detail']");
+                if (!container) container = aboutHeading.parentElement?.parentElement;
+                if (container && container.innerText.trim().length > 200) text = container.innerText.trim().slice(0, 12000);
+              }
+            }
+            // Strategy 3: known class wildcards
+            if (!text) {
+              for (const sel of ["[class*='scaffold-layout__detail']","[class*='jobs-search__job-details']","[class*='job-view-layout']","[class*='jobs-description']"]) {
+                const el = document.querySelector(sel);
+                if (el && el.innerText.trim().length > 300) { text = el.innerText.trim().slice(0, 12000); break; }
+              }
             }
           }
           if (!text) {
-            for (const sel of ["#jobDescriptionText", ".jobDescriptionContent", "#content", ".content", "main"]) {
+            for (const sel of ["#jobDescriptionText", ".jobDescriptionContent", "#content", ".content"]) {
               const el = document.querySelector(sel);
               if (el && el.innerText.trim().length > 100) { text = el.innerText.trim().slice(0, 12000); break; }
             }

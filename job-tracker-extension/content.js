@@ -5,69 +5,46 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type !== "GET_JOB_TEXT") return;
 
   function extractLinkedIn() {
-    // Try known description containers — LinkedIn changes class names often so use wildcards
-    const descSelectors = [
-      ".jobs-description__content",
-      ".jobs-description-content__text",
-      "[class*='jobs-description__container']",
-      "[class*='jobs-description-content']",
-      "[class*='job-details-about-the-role']",
-      "[class*='jobs-details__main-content']",
-    ];
-
-    let desc = null;
-    for (const sel of descSelectors) {
-      const el = document.querySelector(sel);
-      if (el && el.innerText.trim().length > 200) { desc = el; break; }
+    // Strategy 1: use currentJobId from URL to find the job element via data attribute
+    const jobIdMatch = location.search.match(/currentJobId=(\d+)/);
+    if (jobIdMatch) {
+      const jobId = jobIdMatch[1];
+      const byData = document.querySelector(
+        `[data-job-id="${jobId}"], [data-occludable-job-id="${jobId}"], [data-entity-urn*="${jobId}"]`
+      );
+      if (byData) {
+        // Walk up until we have a container with meaningful content (title + description)
+        let el = byData;
+        while (el && el.innerText.trim().length < 500 && el.parentElement) {
+          el = el.parentElement;
+        }
+        if (el && el.innerText.trim().length > 200) return el.innerText.trim().slice(0, 12000);
+      }
     }
 
-    // Top card (title, company, location, salary chips)
-    const topCardSelectors = [
-      ".jobs-unified-top-card",
-      ".job-details-jobs-unified-top-card__container",
-      "[class*='jobs-unified-top-card']",
-      "[class*='job-details-jobs-unified-top-card']",
-    ];
-    let topCard = null;
-    for (const sel of topCardSelectors) {
-      const el = document.querySelector(sel);
-      if (el && el.innerText.trim().length > 20) { topCard = el; break; }
+    // Strategy 2: find "About the job" heading and grab its containing section
+    const headings = Array.from(document.querySelectorAll("h2, h3, h4"));
+    const aboutHeading = headings.find(h => /about the job/i.test(h.innerText.trim()));
+    if (aboutHeading) {
+      let container = aboutHeading.closest("article, section, [class*='job-view'], [class*='jobs-details'], [class*='scaffold-layout__detail']");
+      if (!container) container = aboutHeading.parentElement?.parentElement || null;
+      if (container && container.innerText.trim().length > 200) {
+        return container.innerText.trim().slice(0, 12000);
+      }
     }
 
-    // Right detail panel — wraps both top card and description
-    const detailSelectors = [
-      ".scaffold-layout__detail",
+    // Strategy 3: known class selectors (LinkedIn changes these often)
+    const allSelectors = [
       "[class*='scaffold-layout__detail']",
-      ".jobs-search__job-details--wrapper",
       "[class*='jobs-search__job-details']",
-      ".job-view-layout",
       "[class*='job-view-layout']",
+      "[class*='jobs-description']",
+      "[class*='job-details-about-the-role']",
     ];
-    let detail = null;
-    for (const sel of detailSelectors) {
+    for (const sel of allSelectors) {
       const el = document.querySelector(sel);
-      if (el && el.innerText.trim().length > 300) { detail = el; break; }
+      if (el && el.innerText.trim().length > 300) return el.innerText.trim().slice(0, 12000);
     }
-
-    // If we found the full detail panel, it contains everything — prefer it
-    if (detail) {
-      return detail.innerText.trim().slice(0, 12000);
-    }
-
-    // Otherwise stitch together what we have
-    if (topCard || desc) {
-      const parts = [];
-      if (topCard) parts.push(topCard.innerText.trim());
-      if (desc) parts.push(desc.innerText.trim());
-      return parts.join("\n\n").slice(0, 12000);
-    }
-
-    // Last resort: find the element with the most text on the right side of the page
-    // LinkedIn two-panel layout — right side has job details
-    const candidates = Array.from(document.querySelectorAll("main > * > * > *"))
-      .filter(el => el.innerText && el.innerText.trim().length > 500)
-      .sort((a, b) => b.innerText.length - a.innerText.length);
-    if (candidates.length) return candidates[0].innerText.trim().slice(0, 12000);
 
     return null;
   }
